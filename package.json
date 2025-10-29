@@ -1,0 +1,12 @@
+{
+  "name": "gds-power-page",
+  "version": "1.0.0",
+  "description": "TypeScript build system for Power Pages",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
