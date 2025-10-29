@@ -1,0 +1,14 @@
+adx_append: true
+adx_appendto: true
+adx_create: true
+adx_delete: true
+adx_entitylogicalname: appointment
+adx_entityname: Appointment CRUD-All User
+adx_entitypermission_webrole:
+- 5af8beb4-8b43-49a4-a695-fe53a0a829de
+- 95bbf3de-60be-4699-a5e9-7b60b52147ad
+- e1c3e7d2-3077-42f2-b9d7-cd479736fe42
+adx_entitypermissionid: a403d4e8-93e4-ef11-9342-00224800c002
+adx_read: true
+adx_scope: 756150000
+adx_write: true

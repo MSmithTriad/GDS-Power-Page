@@ -1,0 +1,10 @@
+adx_CloudFlowConsumer_adx_webrole:
+- 5af8beb4-8b43-49a4-a695-fe53a0a829de
+- 95bbf3de-60be-4699-a5e9-7b60b52147ad
+- e1c3e7d2-3077-42f2-b9d7-cd479736fe42
+adx_cloudflowconsumerid: e8661805-cbe7-ef11-9342-00224800c002
+adx_flowapiurl: /_api/cloudflow/v1.0/trigger/5a553b7d-cae7-ef11-9342-00224800c002
+adx_flowtriggerurl: ''
+adx_metadata: ''
+adx_name: Send appointment registration email
+adx_processid: 5a553b7d-cae7-ef11-9342-00224800c002

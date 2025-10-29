@@ -1,0 +1,21 @@
+- adx_columnname: description
+  adx_columnpermissionid: a3a86f4e-a2e4-ef11-9342-00224800c002
+  adx_columnpermissionprofileid: f20b393b-a2e4-ef11-9342-00224800c002
+  adx_permissions:
+  - 746610000
+  - 746610001
+  - 746610002
+- adx_columnname: subject
+  adx_columnpermissionid: c0e31073-a2e4-ef11-9342-00224800c002
+  adx_columnpermissionprofileid: f20b393b-a2e4-ef11-9342-00224800c002
+  adx_permissions:
+  - 746610000
+  - 746610001
+  - 746610002
+- adx_columnname: scheduledstart
+  adx_columnpermissionid: c1c49754-a2e4-ef11-9342-00224800c002
+  adx_columnpermissionprofileid: f20b393b-a2e4-ef11-9342-00224800c002
+  adx_permissions:
+  - 746610000
+  - 746610001
+  - 746610002
