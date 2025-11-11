@@ -1,4 +1,135 @@
 /**
+ * Validates appointment title input
+ */
+function validateAppointmentTitle(title: string): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (!title.trim()) {
+    return { isValid: false, error: "Enter an appointment title" };
+  }
+
+  if (title.trim().length < 3) {
+    return {
+      isValid: false,
+      error: "Appointment title must be at least 3 characters",
+    };
+  }
+
+  if (title.trim().length > 100) {
+    return {
+      isValid: false,
+      error: "Appointment title must be 100 characters or less",
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validates appointment details input (optional field)
+ */
+function validateAppointmentDetails(details: string): {
+  isValid: boolean;
+  error?: string;
+} {
+  // Details are optional, so empty is valid
+  if (!details.trim()) {
+    return { isValid: true };
+  }
+
+  if (details.trim().length > 500) {
+    return { isValid: false, error: "Details must be 500 characters or less" };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Shows validation error for a specific field
+ */
+function showFieldError(fieldId: string, errorMessage: string): void {
+  const field = document.getElementById(fieldId) as HTMLInputElement;
+  if (!field) return;
+
+  // Get the form group containing this field
+  const formGroup = field.closest(".govuk-form-group") as HTMLElement;
+  if (!formGroup) return;
+
+  // Add error class to form group
+  formGroup.classList.add("govuk-form-group--error");
+
+  // Create error message element if it doesn't exist
+  const errorId = `${fieldId}-error`;
+  let errorElement = document.getElementById(errorId);
+  if (!errorElement) {
+    errorElement = document.createElement("p");
+    errorElement.id = errorId;
+    errorElement.className = "govuk-error-message";
+    errorElement.innerHTML =
+      '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+
+    // Insert after the label (or hint if it exists)
+    const label = formGroup.querySelector("label");
+    if (label) {
+      label.insertAdjacentElement("afterend", errorElement);
+    }
+  } else {
+    errorElement.innerHTML =
+      '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+  }
+
+  // Add error class to input field
+  field.classList.add("govuk-input--error");
+
+  // Update aria-describedby to include error
+  const currentDescribedBy = field.getAttribute("aria-describedby") || "";
+  if (!currentDescribedBy.includes(errorId)) {
+    field.setAttribute(
+      "aria-describedby",
+      (currentDescribedBy + " " + errorId).trim()
+    );
+  }
+}
+
+/**
+ * Clears validation error for a specific field
+ */
+function clearFieldError(fieldId: string): void {
+  const field = document.getElementById(fieldId) as HTMLInputElement;
+  if (!field) return;
+
+  // Get the form group containing this field
+  const formGroup = field.closest(".govuk-form-group") as HTMLElement;
+  if (formGroup) {
+    formGroup.classList.remove("govuk-form-group--error");
+  }
+
+  // Remove error message element
+  const errorId = `${fieldId}-error`;
+  const errorElement = document.getElementById(errorId);
+  if (errorElement) {
+    errorElement.remove();
+  }
+
+  // Remove error class from input field
+  field.classList.remove("govuk-input--error");
+
+  // Update aria-describedby to remove error
+  const currentDescribedBy = field.getAttribute("aria-describedby") || "";
+  const updatedDescribedBy = currentDescribedBy
+    .replace(" " + errorId, "")
+    .replace(errorId, "")
+    .trim();
+
+  if (updatedDescribedBy) {
+    field.setAttribute("aria-describedby", updatedDescribedBy);
+  } else {
+    field.removeAttribute("aria-describedby");
+  }
+}
+
+/**
  * Validates date input and returns formatted date or null if invalid
  */
 function validateAndFormatDate(
@@ -174,6 +305,10 @@ function clearDateErrors(): void {
 function addAppointment(): void {
   document.getElementById("appointment-success-msgbox")!.style.display = "none";
 
+  // Clear all previous errors
+  clearFieldError("appointment-title");
+  clearFieldError("appointment-details");
+
   const subject = (
     document.getElementById("appointment-title") as HTMLInputElement
   ).value;
@@ -191,12 +326,33 @@ function addAppointment(): void {
     document.getElementById("appointment-date-day") as HTMLInputElement
   ).value;
 
+  // Validate all fields
+  let hasErrors = false;
+
+  // Validate appointment title
+  const titleValidation = validateAppointmentTitle(subject);
+  if (!titleValidation.isValid) {
+    showFieldError("appointment-title", titleValidation.error!);
+    hasErrors = true;
+  }
+
+  // Validate appointment details
+  const detailsValidation = validateAppointmentDetails(description);
+  if (!detailsValidation.isValid) {
+    showFieldError("appointment-details", detailsValidation.error!);
+    hasErrors = true;
+  }
+
   // Validate the date
   const dateValidation = validateAndFormatDate(day, month, year);
-
   if (!dateValidation.isValid) {
     showDateError(dateValidation.error!);
-    return; // Stop execution if date is invalid
+    hasErrors = true;
+  }
+
+  // Stop if there are any validation errors
+  if (hasErrors) {
+    return;
   }
 
   const formattedDate = dateValidation.formattedDate!;
