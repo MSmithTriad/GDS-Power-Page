@@ -1,45 +1,3 @@
-<script>
-  (function (webapi, $) {
-    // Adds/sets PowerApps request header and fails request if session is invalid
-    function safeAjax(ajaxOptions) {
-      // Deferred is like JS's Promise
-      var deferredAjax = $.Deferred();
-
-      // shell.getTokenDeferred() is a JavaScript method used in PowerApps Portals to generate an authentication token for making Web API calls
-      shell
-        .getTokenDeferred()
-        .done(function (token) {
-          // add headers for ajax
-          if (!ajaxOptions.headers) {
-            $.extend(ajaxOptions, {
-              headers: {
-                __RequestVerificationToken: token,
-              },
-            });
-          } else {
-            ajaxOptions.headers["__RequestVerificationToken"] = token;
-          }
-          $.ajax(ajaxOptions)
-            .done(function (data, textStatus, jqXHR) {
-              validateLoginSession(
-                data,
-                textStatus,
-                jqXHR,
-                deferredAjax.resolve
-              );
-            })
-            .fail(deferredAjax.reject); //ajax
-        })
-        .fail(function () {
-          deferredAjax.rejectWith(this, arguments); // on token failure, pass the token ajax and args
-        });
-
-      return deferredAjax.promise();
-    }
-    webapi.safeAjax = safeAjax;
-  })((window.webapi = window.webapi || {}), jQuery);
-</script>
-
 <div class="govuk-width-container">
   <a href="/Appointments" class="govuk-back-link">Back</a>
   <main id="main-content" class="govuk-main-wrapper">
@@ -77,6 +35,28 @@
         <p class="govuk-body">
           Your reference number
           <span id="appointment-ref"></span>
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="appointment-error-msgbox"
+      role="alert"
+      aria-labelledby="govuk-error-notification-banner-title"
+      data-module="govuk-notification-banner"
+      class="govuk-notification-banner"
+      style="display: none">
+      <div class="govuk-notification-banner__header">
+        <h2 id="govuk-error-notification-banner-title" class="govuk-notification-banner__title">
+          Important
+        </h2>
+      </div>
+      <div class="govuk-notification-banner__content">
+        <h3 class="govuk-notification-banner__heading">
+          There was a problem saving your appointment
+        </h3>
+        <p class="govuk-body" id="appointment-error-message">
+          Please try again. If the problem persists, contact support.
         </p>
       </div>
     </div>

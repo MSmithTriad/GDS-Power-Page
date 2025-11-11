@@ -1,0 +1,124 @@
+/* GDS Modal Styles */
+.govuk-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.govuk-modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.govuk-modal__content {
+  position: relative;
+  background: white;
+  border: 3px solid #0b0c0c;
+  min-width: 320px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.govuk-modal__header {
+  padding: 20px 20px 0 20px;
+  border-bottom: 1px solid #b1b4b6;
+  position: relative;
+}
+
+.govuk-modal__body {
+  padding: 20px;
+}
+
+.govuk-modal__footer {
+  padding: 0 20px 20px 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.govuk-modal__footer .govuk-button {
+  margin-bottom: 0;
+}
+
+/* Small button variant for table actions */
+.govuk-button--small {
+  font-size: 14px;
+  line-height: 1;
+  padding: 4px 10px;
+  min-height: auto;
+}
+
+/* Loading state for buttons */
+.govuk-button--loading {
+  position: relative;
+  color: transparent;
+}
+
+.govuk-button--loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Responsive modal */
+@media (max-width: 640px) {
+  .govuk-modal__content {
+    margin: 20px;
+    max-width: calc(100% - 40px);
+  }
+
+  .govuk-modal__footer {
+    flex-direction: column;
+  }
+
+  .govuk-modal__footer .govuk-button {
+    width: 100%;
+  }
+}
+
+/* Table enhancements */
+.govuk-table__cell--fade-out {
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.govuk-table__cell--empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #626a6e;
+}
+
+.govuk-table__cell--empty-state p {
+  margin-bottom: 10px;
+}

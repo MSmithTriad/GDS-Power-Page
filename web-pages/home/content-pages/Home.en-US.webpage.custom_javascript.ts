@@ -1,3 +1,60 @@
+/* Global functions */
+// Placeholder function for validateLoginSession - typically provided by Power Pages
+function validateLoginSession(
+  data: any,
+  textStatus: string,
+  jqXHR: XMLHttpRequest,
+  callback: Function
+) {
+  // In a real Power Pages environment, this function validates the session
+  // For now, we'll just call the callback to continue
+  callback(data, textStatus, jqXHR);
+}
+/* End Global functions */
+
+// Helper function to validate login session based on API response
+(function (webapi: any, $: any) {
+  // Adds/sets PowerApps request header and fails request if session is invalid
+  function safeAjax(ajaxOptions: any) {
+    // Deferred is like JS's Promise
+    var deferredAjax = $.Deferred();
+
+    // shell.getTokenDeferred() is a JavaScript method used in PowerApps Portals to generate an authentication token for making Web API calls
+    (window as any).shell
+      .getTokenDeferred()
+      .done(function (token: string) {
+        // add headers for ajax
+        if (!ajaxOptions.headers) {
+          $.extend(ajaxOptions, {
+            headers: {
+              __RequestVerificationToken: token,
+            },
+          });
+        } else {
+          ajaxOptions.headers["__RequestVerificationToken"] = token;
+        }
+        $.ajax(ajaxOptions)
+          .done(function (
+            data: any,
+            textStatus: string,
+            jqXHR: XMLHttpRequest
+          ) {
+            validateLoginSession(data, textStatus, jqXHR, deferredAjax.resolve);
+          })
+          .fail(deferredAjax.reject); //ajax
+      })
+      .fail(function () {
+        deferredAjax.rejectWith(this, arguments); // on token failure, pass the token ajax and args
+      });
+
+    return deferredAjax.promise();
+  }
+  webapi.safeAjax = safeAjax;
+})(
+  ((window as any).webapi = (window as any).webapi || {}),
+  (window as any).jQuery
+);
+
 /**
  * Validates a field based on its data attributes
  */
@@ -358,10 +415,101 @@ function clearDateErrors(): void {
 }
 
 /**
+ * Shows the loading state for the form
+ */
+function showLoadingState(): void {
+  const submitButton = document.querySelector(
+    'button[type="submit"]'
+  ) as HTMLButtonElement;
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.setAttribute("aria-describedby", "button-loading-text");
+    // Store original text
+    submitButton.dataset.originalText = submitButton.textContent || "";
+    submitButton.innerHTML = `
+      <span aria-hidden="true" role="status">
+        <span class="govuk-visually-hidden">Loading</span>
+        Saving...
+      </span>
+    `;
+  }
+}
+
+/**
+ * Hides the loading state for the form
+ */
+function hideLoadingState(): void {
+  const submitButton = document.querySelector(
+    'button[type="submit"]'
+  ) as HTMLButtonElement;
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.removeAttribute("aria-describedby");
+    // Restore original text
+    submitButton.textContent = submitButton.dataset.originalText || "Save";
+  }
+}
+
+/**
+ * Shows the success message
+ */
+function showSuccessMessage(appointmentRef: string): void {
+  const appointmentRefElement = document.getElementById("appointment-ref");
+  const successMsgBox = document.getElementById("appointment-success-msgbox");
+
+  if (appointmentRefElement) {
+    appointmentRefElement.textContent = appointmentRef;
+  }
+  if (successMsgBox) {
+    successMsgBox.style.display = "block";
+    // Focus on success message for screen readers
+    successMsgBox.focus();
+    // Scroll to top to ensure message is visible
+    successMsgBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+/**
+ * Shows the error message
+ */
+function showErrorMessage(errorMessage?: string): void {
+  const errorMsgBox = document.getElementById("appointment-error-msgbox");
+  const errorMessageElement = document.getElementById(
+    "appointment-error-message"
+  );
+
+  if (errorMessageElement && errorMessage) {
+    errorMessageElement.textContent = errorMessage;
+  }
+  if (errorMsgBox) {
+    errorMsgBox.style.display = "block";
+    // Focus on error message for screen readers
+    errorMsgBox.focus();
+    // Scroll to top to ensure message is visible
+    errorMsgBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+/**
+ * Hides all notification messages
+ */
+function hideAllMessages(): void {
+  const successMsgBox = document.getElementById("appointment-success-msgbox");
+  const errorMsgBox = document.getElementById("appointment-error-msgbox");
+
+  if (successMsgBox) successMsgBox.style.display = "none";
+  if (errorMsgBox) errorMsgBox.style.display = "none";
+}
+
+/**
  * Adds an appointment by calling the Web API
  */
 function addAppointment(): void {
-  document.getElementById("appointment-success-msgbox")!.style.display = "none";
+  // Hide any existing messages
+  hideAllMessages();
+
+  // Show loading state
+  showLoadingState();
 
   const subject = (
     document.getElementById("appointment-title") as HTMLInputElement
@@ -401,6 +549,7 @@ function addAppointment(): void {
 
   // Stop if there are any validation errors
   if (hasErrors) {
+    hideLoadingState();
     return;
   }
 
@@ -419,17 +568,41 @@ function addAppointment(): void {
       scheduledend: endDate,
     }),
     success: function (res: any, status: string, xhr: XMLHttpRequest) {
-      const appointmentRef = document.getElementById("appointment-ref");
-      const successMsgBox = document.getElementById(
-        "appointment-success-msgbox"
-      );
+      hideLoadingState();
+      const appointmentRef = xhr.getResponseHeader("entityid") || "Unknown";
+      showSuccessMessage(appointmentRef);
+    },
+    error: function (xhr: XMLHttpRequest, status: string, error: string) {
+      hideLoadingState();
 
-      if (appointmentRef) {
-        appointmentRef.innerHTML = xhr.getResponseHeader("entityid") || "";
+      // Try to get a meaningful error message
+      let errorMessage =
+        "Please try again. If the problem persists, contact support.";
+
+      try {
+        const responseText = xhr.responseText;
+        if (responseText) {
+          const errorData = JSON.parse(responseText);
+          if (errorData.error && errorData.error.message) {
+            errorMessage = errorData.error.message;
+          }
+        }
+      } catch (e) {
+        // Use default error message if parsing fails
       }
-      if (successMsgBox) {
-        successMsgBox.style.display = "block";
+
+      // Handle specific HTTP status codes
+      if (xhr.status === 401 || xhr.status === 403) {
+        errorMessage =
+          "You don't have permission to create appointments. Please contact support.";
+      } else if (xhr.status === 500) {
+        errorMessage = "A server error occurred. Please try again later.";
+      } else if (xhr.status === 0) {
+        errorMessage =
+          "Network error. Please check your connection and try again.";
       }
+
+      showErrorMessage(errorMessage);
     },
   });
 }

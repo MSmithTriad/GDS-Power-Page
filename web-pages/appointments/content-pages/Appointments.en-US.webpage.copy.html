@@ -1,27 +1,20 @@
-<!-- <div class="row sectionBlockLayout text-start" style="min-height: auto; padding: 8px;">
-    <div class="container" style="display: flex; flex-wrap: wrap;">
-      <div class="col-lg-12 columnBlockLayout" style="padding: 16px; margin: 60px 0px; min-height: 200px;"></div>
-    </div>
-  </div> -->
-<!-- <div class="row sectionBlockLayout text-start" style="display: flex; flex-wrap: wrap; margin: 0px; min-height: auto; padding: 8px;">
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap;"><div class="col-lg-12 columnBlockLayout" style="flex-grow: 1; display: flex; flex-direction: column; min-width: 250px;"></div></div>
-</div>
-<div class="row sectionBlockLayout text-start" style="display: flex; flex-wrap: wrap; margin: 0px; min-height: auto; padding: 8px;">
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap;">
-    <div class="col-lg-12 columnBlockLayout" style="flex-grow: 1; display: flex; flex-direction: column; min-width: 300px;"></div>
-  </div>
-</div> -->
 {% fetchxml appointmentList %}
-<fetch version="1.0" output-format="xml-platform" mapping="logical" savedqueryid="5b5f75f6-b585-4212-952a-b4cbb64e2627" no-lock="false" distinct="true">
-  <entity name="appointment">
-    <attribute name="subject" />    
-    <attribute name="scheduledstart" />
-    <order attribute="scheduledstart" descending="true" />
-    <attribute name="activityid" />
-    <attribute name="instancetypecode" />
-    <attribute name="description" />
-  </entity>
-</fetch>
+  <fetch
+    version="1.0"
+    output-format="xml-platform"
+    mapping="logical"
+    savedqueryid="5b5f75f6-b585-4212-952a-b4cbb64e2627"
+    no-lock="false"
+    distinct="true">
+    <entity name="appointment">
+      <attribute name="subject" />
+      <attribute name="scheduledstart" />
+      <order attribute="scheduledstart" descending="true" />
+      <attribute name="activityid" />
+      <attribute name="instancetypecode" />
+      <attribute name="description" />
+    </entity>
+  </fetch>
 {% endfetchxml %}
 
 <div class="govuk-width-container">
@@ -30,30 +23,145 @@
       <fieldset class="govuk-fieldset">
         <!-- <legend class="govuk-fieldset__legend govuk-fieldset__legend--l"> -->
         <h1 class="govuk-heading-xl">Appointments</h1>
-        <!-- </legend> -->
+
+        <!-- Success message for delete operations -->
+        <div
+          id="delete-success-msgbox"
+          role="alert"
+          aria-labelledby="delete-success-banner-title"
+          data-module="govuk-notification-banner"
+          class="govuk-notification-banner govuk-notification-banner--success"
+          style="display: none">
+          <div class="govuk-notification-banner__header">
+            <h2 id="delete-success-banner-title" class="govuk-notification-banner__title">
+              Success
+            </h2>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <h3 class="govuk-notification-banner__heading">
+              Appointment deleted successfully
+            </h3>
+            <p class="govuk-body">
+              The appointment has been removed from your list.
+            </p>
+          </div>
+        </div>
+
+        <!-- Error message for delete operations -->
+        <div
+          id="delete-error-msgbox"
+          role="alert"
+          aria-labelledby="delete-error-banner-title"
+          data-module="govuk-notification-banner"
+          class="govuk-notification-banner"
+          style="display: none">
+          <div class="govuk-notification-banner__header">
+            <h2 id="delete-error-banner-title" class="govuk-notification-banner__title">
+              Important
+            </h2>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <h3 class="govuk-notification-banner__heading">
+              There was a problem deleting the appointment
+            </h3>
+            <p class="govuk-body" id="delete-error-message">
+              Please try again. If the problem persists, contact support.
+            </p>
+          </div>
+        </div>
+
+        <!-- </legend -->
         <table class="govuk-table">
+          <caption class="govuk-table__caption govuk-table__caption--s govuk-visually-hidden">
+            List of your appointments with options to delete
+          </caption>
           <thead class="govuk-table__head">
             <tr class="govuk-table__row">
               <th scope="col" class="govuk-table__header">Title</th>
               <th scope="col" class="govuk-table__header">Details</th>
               <th scope="col" class="govuk-table__header">Date</th>
+              <th scope="col" class="govuk-table__header">Actions</th>
             </tr>
           </thead>
           <tbody class="govuk-table__body">
             {% for result in appointmentList.results.entities %}
-            <tr class="govuk-table__row">
-              <th scope="row" class="govuk-table__header">{{result.subject}}</th>
-              <td scope="row" class="govuk-table__cell">{{result.description}}</th>
-              <td class="govuk-table__cell">{{result.scheduledstart}}</td>
-            </tr>
+              <tr class="govuk-table__row" data-appointment-id="{{result.activityid}}">
+                <th scope="row" class="govuk-table__header">{{ result.subject }}</th>
+                <td class="govuk-table__cell">{{ result.description }}</td>
+                <td class="govuk-table__cell">{{ result.scheduledstart | date: "g" }}</td>
+                <td class="govuk-table__cell">
+                  <button
+                    type="button"
+                    class="govuk-button govuk-button--warning govuk-button--small"
+                    data-module="govuk-button"
+                    onclick="showDeleteConfirmation('{{result.activityid}}', '{{result.subject | escape}}')"
+                    aria-describedby="delete-{{result.activityid}}-description">
+                    Delete
+                  </button>
+                  <div id="delete-{{result.activityid}}-description" class="govuk-visually-hidden">
+                    Delete appointment: {{ result.subject }}
+                  </div>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
-        <button type="submit" data-module="govuk-button" class="govuk-button" onclick="window.location.href='/'" type="button" value="/">Register an Appointment</button>
+
+        <!-- Delete confirmation modal -->
+        <div
+          id="delete-confirmation-modal"
+          class="govuk-modal"
+          style="display: none;"
+          role="dialog"
+          aria-labelledby="delete-modal-title"
+          aria-describedby="delete-modal-description">
+          <div class="govuk-modal__overlay" onclick="hideDeleteConfirmation()"></div>
+          <div class="govuk-modal__content">
+            <div class="govuk-modal__header">
+              <h2 id="delete-modal-title" class="govuk-heading-m govuk-!-margin-bottom-0">
+                Are you sure you want to delete this appointment?
+              </h2>
+            </div>
+            <div class="govuk-modal__body">
+              <p id="delete-modal-description" class="govuk-body">
+                You are about to delete the appointment "<span id="delete-appointment-title"></span>".
+              </p>
+              <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                  <span class="govuk-warning-text__assistive">Warning</span>
+                  This action cannot be undone.
+                </strong>
+              </div>
+            </div>
+            <div class="govuk-modal__footer">
+              <button
+                id="confirm-delete-btn"
+                type="button"
+                class="govuk-button govuk-button--warning"
+                data-module="govuk-button"
+                onclick="confirmDelete()">
+                Delete appointment
+              </button>
+              <button
+                type="button"
+                class="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onclick="hideDeleteConfirmation()">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          data-module="govuk-button"
+          class="govuk-button"
+          onclick="window.location.href='/'"
+          type="button"
+          value="/">Register an Appointment</button>
       </fieldset>
     </div>
   </main>
-</div>
-<div class="row sectionBlockLayout text-start" style="display: flex; flex-wrap: wrap; margin: 0px; min-height: auto; padding: 8px;">
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap;"><div class="col-lg-12 columnBlockLayout" style="flex-grow: 1; display: flex; flex-direction: column; min-width: 250px;"></div></div>
 </div>
