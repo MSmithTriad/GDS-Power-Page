@@ -72,6 +72,10 @@ adx_contentsnippet:
   DisplayName: Search/NoResults
   CheckSum: 97a2087a801924073e5544ffee91fb799820c7dde0cf2185115fee3c0db04a3b
   IsDeleted: false
+- RecordId: e2dc25ab-dfbe-f011-bbd3-000d3a86eac8
+  DisplayName: GDSTextInput
+  CheckSum: 3e50de0706f5e48c0e6db70ca2d8bfdcc988b0b16f6ee9912abb0a0e81241dd1
+  IsDeleted: false
 - RecordId: ee9ed6aa-30e9-427c-88b7-c1c3ce549350
   DisplayName: Search/ResultsCount
   CheckSum: c2933b69c94367769414b7d94d3fbd78c3a595c7ce0c65a2b66e94c54a7117d6
@@ -561,7 +565,7 @@ adx_webpage:
   IsDeleted: false
 - RecordId: ac62d5df-d485-4296-a15d-23dada9db050
   DisplayName: Home
-  CheckSum: b668d18b433c294d49c0d2b4cf1fd287d225aa840d54761cd146686bcc4b8ede
+  CheckSum: 451f48c1bf1da0ac4d5fd2888229f39fd97a238b15a6ec24cba4530cd325e01f
   IsDeleted: false
 - RecordId: ac8e1ecf-c506-4305-879f-5b70789f65c6
   DisplayName: Search

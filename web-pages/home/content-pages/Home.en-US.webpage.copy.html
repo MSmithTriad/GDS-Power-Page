@@ -1,11 +1,3 @@
-<!-- <div class="row sectionBlockLayout text-start" style="display: flex; flex-wrap: wrap; margin: 0px; min-height: auto; padding: 8px;">
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap;"><div class="col-lg-12 columnBlockLayout" style="flex-grow: 1; display: flex; flex-direction: column; min-width: 250px;"></div></div>
-</div>
-<div class="row sectionBlockLayout text-start" style="display: flex; flex-wrap: wrap; margin: 0px; min-height: auto; padding: 8px;">
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap;">
-    <div class="col-lg-12 columnBlockLayout" style="flex-grow: 1; display: flex; flex-direction: column; min-width: 300px;"></div>
-  </div>
-</div> -->
 <script>
   (function (webapi, $) {
     // Adds/sets PowerApps request header and fails request if session is invalid
@@ -47,178 +39,128 @@
     webapi.safeAjax = safeAjax;
   })((window.webapi = window.webapi || {}), jQuery);
 </script>
+
 <div class="govuk-width-container">
+  <a href="/Appointments" class="govuk-back-link">Back</a>
   <main id="main-content" class="govuk-main-wrapper">
-    <div>
-      <nav aria-label="Breadcrumb" class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-          <li class="govuk-breadcrumbs__list-item">
-            <a href="/Appointments" class="govuk-breadcrumbs__link"
-              >Appointments</a
-            >
-          </li>
-          <li class="govuk-breadcrumbs__list-item">
-            <a href="#" class="govuk-breadcrumbs__link"
-              >Appointment Registration</a
-            >
-          </li>
-        </ol>
-      </nav>
+    <nav aria-label="Breadcrumb" class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a href="/Appointments" class="govuk-breadcrumbs__link">Appointments</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a href="#" class="govuk-breadcrumbs__link">Appointment Registration</a>
+        </li>
+      </ol>
+    </nav>
+
+    <h1 class="govuk-heading-xl">
+      {{ snippets["AppointmentRegistration/Header"] }}
+    </h1>
+
+    <div
+      id="appointment-success-msgbox"
+      role="alert"
+      aria-labelledby="govuk-notification-banner-title"
+      data-module="govuk-notification-banner"
+      class="govuk-notification-banner govuk-notification-banner--success"
+      style="display: none">
+      <div class="govuk-notification-banner__header">
+        <h2 id="govuk-notification-banner-title" class="govuk-notification-banner__title">
+          Success
+        </h2>
+      </div>
+      <div class="govuk-notification-banner__content">
+        <h3 class="govuk-notification-banner__heading">
+          Appointment registration complete
+        </h3>
+        <p class="govuk-body">
+          Your reference number
+          <span id="appointment-ref"></span>
+        </p>
+      </div>
+    </div>
+
+    {% comment %} The return false; prevents default browser form submission {% endcomment %}
+    <form onsubmit="addAppointment(); return false;">
       <fieldset class="govuk-fieldset">
-        <!-- <legend class="govuk-fieldset__legend govuk-fieldset__legend--l"> -->
-        <h1 class="govuk-heading-xl">
-          {{ snippets["AppointmentRegistration/Header"] }}
-        </h1>
-        <!-- </legend> -->
-        <div
-          id="appointment-success-msgbox"
-          role="alert"
-          aria-labelledby="govuk-notification-banner-title"
-          data-module="govuk-notification-banner"
-          class="govuk-notification-banner govuk-notification-banner--success"
-          style="display: none"
-        >
-          <div class="govuk-notification-banner__header">
-            <h2
-              id="govuk-notification-banner-title"
-              class="govuk-notification-banner__title"
-            >
-              Success
-            </h2>
-          </div>
-          <div class="govuk-notification-banner__content">
-            <h3 class="govuk-notification-banner__heading">
-              Appointment registration complete
-            </h3>
-            <p class="govuk-body">
-              Your reference number <span id="appointment-ref"></span>
-            </p>
-          </div>
-        </div>
-        <div class="govuk-form-group">
-          <label for="appointment-title" class="govuk-label">
-            Appointment Title </label
-          ><input
-            id="appointment-title"
-            name="appointmenttitle"
-            type="text"
-            autocomplete="appointment-title"
-            class="govuk-input"
-          />
-        </div>
-        <div class="govuk-form-group">
-          <label for="appointment-details" class="govuk-label">
-            Details (optional) </label
-          ><input
-            id="appointment-details"
-            name="appointmentdetails"
-            type="text"
-            autocomplete="appointment-details"
-            class="govuk-input"
-          />
-        </div>
-        <div class="govuk-form-group">
-          <fieldset
-            role="group"
-            aria-describedby="appointment-date-hint"
-            class="govuk-fieldset"
-          >
-            <label class="govuk-label">Appointment Date</label>
-            <div id="appointment-date-hint" class="govuk-hint">
-              For example, 27 2 2025
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-one-half">
+
+            {% include 'snippet' snippet_name: 'GDSTextInput' fieldId: 'appointment-title' label: 'Appointment Title' placeholder: 'Enter appointment title' required: true minLength: 3 maxLength: 100 helpText: 'Enter a clear, descriptive title for your appointment' inputType: 'text' autocomplete: 'off' cssClass: '' %}
+
+            {% include 'snippet' snippet_name: 'GDSTextInput' fieldId: 'appointment-details' label: 'Appointment Details' placeholder: 'Enter appointment details' required: true minLength: 10 maxLength: 500 helpText: 'Provide additional details about your appointment purpose and requirements' inputType: 'text' autocomplete: 'off' cssClass: '' %}
+
+            <div class="govuk-form-group">
+              <fieldset
+                role="group"
+                aria-describedby="appointment-date-hint"
+                class="govuk-fieldset">
+                <label class="govuk-label">Appointment Date</label>
+                <div id="appointment-date-hint" class="govuk-hint">
+                  For example, 27 2 2025
+                </div>
+                <div id="appointment-date" class="govuk-date-input">
+                  <div class="govuk-date-input__item">
+                    <div class="govuk-form-group">
+                      <label for="appointment-date-day" class="govuk-label govuk-date-input__label">
+                        Day
+                      </label><input
+                        id="appointment-date-day"
+                        name="appointment-date-day"
+                        type="text"
+                        inputmode="numeric"
+                        class="govuk-input govuk-date-input__input govuk-input--width-2" />
+                    </div>
+                  </div>
+                  <div class="govuk-date-input__item">
+                    <div class="govuk-form-group">
+                      <label for="appointment-date-month" class="govuk-label govuk-date-input__label">
+                        Month
+                      </label><input
+                        id="appointment-date-month"
+                        name="appointment-date-month"
+                        type="text"
+                        inputmode="numeric"
+                        class="govuk-input govuk-date-input__input govuk-input--width-2" />
+                    </div>
+                  </div>
+                  <div class="govuk-date-input__item">
+                    <div class="govuk-form-group">
+                      <label for="appointment-date-year" class="govuk-label govuk-date-input__label">
+                        Year
+                      </label><input
+                        id="appointment-date-year"
+                        name="appointment-date-year"
+                        type="text"
+                        inputmode="numeric"
+                        class="govuk-input govuk-date-input__input govuk-input--width-4" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
             </div>
-            <div id="appointment-date" class="govuk-date-input">
-              <div class="govuk-date-input__item">
-                <div class="govuk-form-group">
-                  <label
-                    for="appointment-date-day"
-                    class="govuk-label govuk-date-input__label"
-                  >
-                    Day </label
-                  ><input
-                    id="appointment-date-day"
-                    name="appointment-date-day"
-                    type="text"
-                    inputmode="numeric"
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                  />
-                </div>
-              </div>
-              <div class="govuk-date-input__item">
-                <div class="govuk-form-group">
-                  <label
-                    for="appointment-date-month"
-                    class="govuk-label govuk-date-input__label"
-                  >
-                    Month </label
-                  ><input
-                    id="appointment-date-month"
-                    name="appointment-date-month"
-                    type="text"
-                    inputmode="numeric"
-                    class="govuk-input govuk-date-input__input govuk-input--width-2"
-                  />
-                </div>
-              </div>
-              <div class="govuk-date-input__item">
-                <div class="govuk-form-group">
-                  <label
-                    for="appointment-date-year"
-                    class="govuk-label govuk-date-input__label"
-                  >
-                    Year </label
-                  ><input
-                    id="appointment-date-year"
-                    name="appointment-date-year"
-                    type="text"
-                    inputmode="numeric"
-                    class="govuk-input govuk-date-input__input govuk-input--width-4"
-                  />
-                </div>
-              </div>
+
+            <div class="govuk-form-group">
+              <label for="file-upload-1" class="govuk-label">
+                Upload a file
+              </label>
+              <input
+                id="file-upload-1"
+                name="fileUpload1"
+                type="file"
+                class="govuk-file-upload" />
             </div>
-          </fieldset>
-        </div>
-        <div class="govuk-form-group">
-          <label for="file-upload-1" class="govuk-label"> Upload a file </label
-          ><input
-            id="file-upload-1"
-            name="fileUpload1"
-            type="file"
-            class="govuk-file-upload"
-          />
+          </div>
         </div>
       </fieldset>
+
       <button
         type="submit"
         data-module="govuk-button"
-        onclick="addAppointment()"
-        class="govuk-button"
-      >
+        class="govuk-button">
         Save
       </button>
-    </div>
+    </form>
   </main>
-</div>
-<div
-  class="row sectionBlockLayout text-start"
-  style="
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0px;
-    min-height: auto;
-    padding: 8px;
-  "
->
-  <div class="container" style="padding: 0px; display: flex; flex-wrap: wrap">
-    <div
-      class="col-lg-12 columnBlockLayout"
-      style="
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        min-width: 250px;
-      "
-    ></div>
-  </div>
 </div>

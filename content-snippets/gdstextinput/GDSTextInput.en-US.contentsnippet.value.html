@@ -1,0 +1,46 @@
+{% assign fieldId = fieldId | default: 'text-input' %}
+{% assign label = label | default: 'Text Input' %}
+{% assign placeholder = placeholder | default: '' %}
+{% assign required = required | default: false %}
+{% assign minLength = minLength | default: 0 %}
+{% assign maxLength = maxLength | default: 255 %}
+{% assign helpText = helpText | default: '' %}
+{% assign inputType = inputType | default: 'text' %}
+{% assign autocomplete = autocomplete | default: '' %}
+{% assign cssClass = cssClass | default: '' %}
+{% assign placeholderAttr = '' %}
+{% if placeholder != '' %}
+  {% assign placeholderAttr = 'placeholder="' | append: placeholder | append: '"' %}
+{% endif %}
+{% assign autocompleteAttr = '' %}
+{% if autocomplete != '' %}
+  {% assign autocompleteAttr = 'autocomplete="' | append: autocomplete | append: '"' %}
+{% endif %}
+{% assign ariaDescribedBy = '' %}
+{% if helpText != '' %}
+  {% assign ariaDescribedBy = 'aria-describedby="' | append: fieldId | append: '-hint"' %}
+{% endif %}
+
+<div class="govuk-form-group {{ cssClass }}" data-field-id="{{ fieldId }}">
+  <label for="{{ fieldId }}" class="govuk-label">
+    {{ label }}
+    {% if required %}
+      <span class="govuk-required">
+        *</span>
+    {% endif %}
+  </label>
+  {% if helpText != '' %}
+    <div id="{{ fieldId }}-hint" class="govuk-hint">{{ helpText }}</div>
+  {% endif %}
+  <input
+    id="{{ fieldId }}"
+    name="{{ fieldId }}"
+    type="{{ inputType }}"
+    {{ placeholderAttr }}
+    {{ autocompleteAttr }}
+    {{ ariaDescribedBy }}
+    class="govuk-input"
+    data-validation-required="{{ required }}"
+    data-validation-min-length="{{ minLength }}"
+    data-validation-max-length="{{ maxLength }}" />
+</div>
