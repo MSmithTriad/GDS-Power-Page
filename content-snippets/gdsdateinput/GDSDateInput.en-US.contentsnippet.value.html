@@ -1,0 +1,94 @@
+{% assign fieldId = fieldId | default: 'date-input' %}
+{% assign label = label | default: 'Date Input' %}
+{% assign required = required | default: false %}
+{% assign helpText = helpText | default: '' %}
+{% assign hintText = hintText | default: 'For example, 27 2 2025' %}
+{% assign cssClass = cssClass | default: '' %}
+
+{% comment %} 
+  GDS Date Input Component
+   
+  Props: 
+  - fieldId: ID prefix for the date inputs (default: 'date-input') 
+  - label: Label text for the date input group (default: 'Date Input') 
+  - required: Whether the date is required (default: false) 
+  - helpText: Help text displayed below the label (default: '') 
+  - hintText: Hint text for date format (default: 'For example, 27 2 2025') 
+  - cssClass: Additional CSS classes for the form group (default: '') 
+{% endcomment %}
+
+<div class="govuk-form-group {{ cssClass }}" data-field-id="{{ fieldId }}">
+  <fieldset
+    role="group"
+    aria-describedby="{% if helpText != '' %}{{ fieldId }}-help {% endif %}{{ fieldId }}-hint"
+    class="govuk-fieldset">
+
+    <legend class="govuk-fieldset__legend">
+      <label class="govuk-label">
+        {{ label }}
+        {% if required %}
+          <span class="govuk-required">*</span>
+        {% endif %}
+      </label>
+    </legend>
+
+    {% if helpText != '' %}
+      <div id="{{ fieldId }}-help" class="govuk-hint">{{ helpText }}</div>
+    {% endif %}
+
+    <div id="{{ fieldId }}-hint" class="govuk-hint">{{ hintText }}</div>
+
+    <div id="{{ fieldId }}" class="govuk-date-input">
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label for="{{ fieldId }}-day" class="govuk-label govuk-date-input__label">
+            Day
+          </label>
+          <input
+            id="{{ fieldId }}-day"
+            name="{{ fieldId }}-day"
+            type="text"
+            inputmode="numeric"
+            class="govuk-input govuk-date-input__input govuk-input--width-2"
+            data-validation-required="{{ required }}"
+            data-validation-type="day"
+            data-date-group="{{ fieldId }}" />
+        </div>
+      </div>
+
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label for="{{ fieldId }}-month" class="govuk-label govuk-date-input__label">
+            Month
+          </label>
+          <input
+            id="{{ fieldId }}-month"
+            name="{{ fieldId }}-month"
+            type="text"
+            inputmode="numeric"
+            class="govuk-input govuk-date-input__input govuk-input--width-2"
+            data-validation-required="{{ required }}"
+            data-validation-type="month"
+            data-date-group="{{ fieldId }}" />
+        </div>
+      </div>
+
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label for="{{ fieldId }}-year" class="govuk-label govuk-date-input__label">
+            Year
+          </label>
+          <input
+            id="{{ fieldId }}-year"
+            name="{{ fieldId }}-year"
+            type="text"
+            inputmode="numeric"
+            class="govuk-input govuk-date-input__input govuk-input--width-4"
+            data-validation-required="{{ required }}"
+            data-validation-type="year"
+            data-date-group="{{ fieldId }}" />
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</div>

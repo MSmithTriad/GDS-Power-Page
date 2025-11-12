@@ -12,9 +12,7 @@
       </ol>
     </nav>
 
-    <h1 class="govuk-heading-xl">
-      {{ snippets["AppointmentRegistration/Header"] }}
-    </h1>
+    <h1 class="govuk-heading-xl">{{ snippets["AppointmentRegistration/Header"] }}</h1>
 
     <div
       id="appointment-success-msgbox"
@@ -24,14 +22,10 @@
       class="govuk-notification-banner govuk-notification-banner--success"
       style="display: none">
       <div class="govuk-notification-banner__header">
-        <h2 id="govuk-notification-banner-title" class="govuk-notification-banner__title">
-          Success
-        </h2>
+        <h2 id="govuk-notification-banner-title" class="govuk-notification-banner__title">Success</h2>
       </div>
       <div class="govuk-notification-banner__content">
-        <h3 class="govuk-notification-banner__heading">
-          Appointment registration complete
-        </h3>
+        <h3 class="govuk-notification-banner__heading">Appointment registration complete</h3>
         <p class="govuk-body">
           Your reference number
           <span id="appointment-ref"></span>
@@ -47,17 +41,11 @@
       class="govuk-notification-banner"
       style="display: none">
       <div class="govuk-notification-banner__header">
-        <h2 id="govuk-error-notification-banner-title" class="govuk-notification-banner__title">
-          Important
-        </h2>
+        <h2 id="govuk-error-notification-banner-title" class="govuk-notification-banner__title">Important</h2>
       </div>
       <div class="govuk-notification-banner__content">
-        <h3 class="govuk-notification-banner__heading">
-          There was a problem saving your appointment
-        </h3>
-        <p class="govuk-body" id="appointment-error-message">
-          Please try again. If the problem persists, contact support.
-        </p>
+        <h3 class="govuk-notification-banner__heading">There was a problem saving your appointment</h3>
+        <p class="govuk-body" id="appointment-error-message">Please try again. If the problem persists, contact support.</p>
       </div>
     </div>
 
@@ -66,60 +54,11 @@
       <fieldset class="govuk-fieldset">
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-one-half">
-
             {% include 'snippet' snippet_name: 'GDSTextInput' fieldId: 'appointment-title' label: 'Appointment Title' placeholder: 'Enter appointment title' required: true minLength: 3 maxLength: 100 helpText: 'Enter a clear, descriptive title for your appointment' inputType: 'text' autocomplete: 'off' cssClass: '' %}
 
             {% include 'snippet' snippet_name: 'GDSTextInput' fieldId: 'appointment-details' label: 'Appointment Details' placeholder: 'Enter appointment details' required: true minLength: 10 maxLength: 500 helpText: 'Provide additional details about your appointment purpose and requirements' inputType: 'text' autocomplete: 'off' cssClass: '' %}
 
-            <div class="govuk-form-group">
-              <fieldset
-                role="group"
-                aria-describedby="appointment-date-hint"
-                class="govuk-fieldset">
-                <label class="govuk-label">Appointment Date</label>
-                <div id="appointment-date-hint" class="govuk-hint">
-                  For example, 27 2 2025
-                </div>
-                <div id="appointment-date" class="govuk-date-input">
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label for="appointment-date-day" class="govuk-label govuk-date-input__label">
-                        Day
-                      </label><input
-                        id="appointment-date-day"
-                        name="appointment-date-day"
-                        type="text"
-                        inputmode="numeric"
-                        class="govuk-input govuk-date-input__input govuk-input--width-2" />
-                    </div>
-                  </div>
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label for="appointment-date-month" class="govuk-label govuk-date-input__label">
-                        Month
-                      </label><input
-                        id="appointment-date-month"
-                        name="appointment-date-month"
-                        type="text"
-                        inputmode="numeric"
-                        class="govuk-input govuk-date-input__input govuk-input--width-2" />
-                    </div>
-                  </div>
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label for="appointment-date-year" class="govuk-label govuk-date-input__label">
-                        Year
-                      </label><input
-                        id="appointment-date-year"
-                        name="appointment-date-year"
-                        type="text"
-                        inputmode="numeric"
-                        class="govuk-input govuk-date-input__input govuk-input--width-4" />
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
+            {% include 'snippet' snippet_name: 'GDSDateInput' fieldId: 'appointment-date' label: 'Appointment Date' required: true helpText: 'Select the date for your appointment' hintText: 'For example, 27 2 2025' cssClass: '' %}
 
             <div class="govuk-form-group">
               <label for="file-upload-1" class="govuk-label">
@@ -138,9 +77,7 @@
       <button
         type="submit"
         data-module="govuk-button"
-        class="govuk-button">
-        Save
-      </button>
+        class="govuk-button">Save</button>
     </form>
   </main>
 </div>
