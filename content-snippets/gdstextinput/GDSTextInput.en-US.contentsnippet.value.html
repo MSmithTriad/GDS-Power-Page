@@ -25,8 +25,7 @@
   <label for="{{ fieldId }}" class="govuk-label">
     {{ label }}
     {% if required %}
-      <span class="govuk-required">
-        *</span>
+      <span class="govuk-required">*</span>
     {% endif %}
   </label>
   {% if helpText != '' %}
@@ -44,3 +43,166 @@
     data-validation-min-length="{{ minLength }}"
     data-validation-max-length="{{ maxLength }}" />
 </div>
+
+<script>
+  (function() {
+  // Self-contained validation logic for {{ fieldId }}
+  const fieldId = '{{ fieldId }}';
+  const isRequired = {{ required }};
+  const minLength = {{ minLength }};
+  const maxLength = {{ maxLength }};
+  const label = '{{ label | escape }}';
+  
+  function validateField() {
+    const field = document.getElementById(fieldId);
+    if (!field) return { isValid: true };
+  
+    const value = field.value;
+    const cleanLabel = label.replace('*', '').trim();
+  
+    // Required validation
+    if (isRequired && !value.trim()) {
+      return { isValid: false, error: `Enter ${cleanLabel.toLowerCase()}` };
+    }
+  
+    // Skip other validations if field is empty and not required
+    if (!value.trim() && !isRequired) {
+      return { isValid: true };
+    }
+  
+    // Min length validation
+    if (value.trim().length < minLength && minLength > 0) {
+      return {
+        isValid: false,
+        error: `${cleanLabel} must be at least ${minLength} character${minLength === 1 ? '' : 's'}`
+      };
+    }
+  
+    // Max length validation
+    if (value.trim().length > maxLength) {
+      return {
+        isValid: false,
+        error: `${cleanLabel} must be ${maxLength} characters or less`
+      };
+    }
+  
+    return { isValid: true };
+  }
+  
+  function showError(errorMessage) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+  
+    const formGroup = field.closest('.govuk-form-group');
+    if (!formGroup) return;
+  
+    // Add error class to form group
+    formGroup.classList.add('govuk-form-group--error');
+  
+    // Create or update error message
+    const errorId = `${fieldId}-error`;
+    let errorElement = document.getElementById(errorId);
+  
+    if (!errorElement) {
+      errorElement = document.createElement('p');
+      errorElement.id = errorId;
+      errorElement.className = 'govuk-error-message';
+      errorElement.innerHTML = '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+  
+      // Insert after label or hint
+      const label = formGroup.querySelector('label');
+      const hint = formGroup.querySelector('.govuk-hint');
+      const insertAfter = hint || label;
+  
+      if (insertAfter) {
+        insertAfter.insertAdjacentElement('afterend', errorElement);
+      }
+    } else {
+      errorElement.innerHTML = '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+    }
+  
+    // Add error class to input
+    field.classList.add('govuk-input--error');
+  
+    // Update aria-describedby
+    const currentDescribedBy = field.getAttribute('aria-describedby') || '';
+    if (!currentDescribedBy.includes(errorId)) {
+      field.setAttribute('aria-describedby', (currentDescribedBy + ' ' + errorId).trim());
+    }
+  }
+  
+  function clearError() {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+  
+    const formGroup = field.closest('.govuk-form-group');
+    if (formGroup) {
+      formGroup.classList.remove('govuk-form-group--error');
+    }
+  
+    // Remove error message
+    const errorId = `${fieldId}-error`;
+    const errorElement = document.getElementById(errorId);
+    if (errorElement) {
+      errorElement.remove();
+    }
+  
+    // Remove error class from input
+    field.classList.remove('govuk-input--error');
+  
+    // Update aria-describedby
+    const currentDescribedBy = field.getAttribute('aria-describedby') || '';
+    const updatedDescribedBy = currentDescribedBy
+      .replace(' ' + errorId, '')
+      .replace(errorId, '')
+      .trim();
+  
+    if (updatedDescribedBy) {
+      field.setAttribute('aria-describedby', updatedDescribedBy);
+    } else {
+      field.removeAttribute('aria-describedby');
+    }
+  }
+  
+  // Expose validation methods globally
+  window.GDSTextInput = window.GDSTextInput || {};
+  window.GDSTextInput[fieldId] = {
+    validate: validateField,
+    showError: showError,
+    clearError: clearError
+  };
+  
+  // Auto-initialize validation when field is available
+  function initializeValidation() {
+    const field = document.getElementById(fieldId);
+    if (!field) {
+      setTimeout(initializeValidation, 100);
+      return;
+    }
+  
+    // Add blur event for real-time validation
+    field.addEventListener('blur', () => {
+      clearError();
+      const validation = validateField();
+  
+      if (!validation.isValid) {
+        showError(validation.error);
+      }
+    });
+  
+    // Clear errors on input
+    field.addEventListener('input', () => {
+      if (field.classList.contains('govuk-input--error')) {
+        clearError();
+      }
+    });
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeValidation);
+  } else {
+    initializeValidation();
+  }
+  })();
+</script>

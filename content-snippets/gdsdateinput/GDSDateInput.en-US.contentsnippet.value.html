@@ -6,15 +6,15 @@
 {% assign cssClass = cssClass | default: '' %}
 
 {% comment %} 
-  GDS Date Input Component
-   
-  Props: 
-  - fieldId: ID prefix for the date inputs (default: 'date-input') 
-  - label: Label text for the date input group (default: 'Date Input') 
-  - required: Whether the date is required (default: false) 
-  - helpText: Help text displayed below the label (default: '') 
-  - hintText: Hint text for date format (default: 'For example, 27 2 2025') 
-  - cssClass: Additional CSS classes for the form group (default: '') 
+    GDS Date Input Component
+     
+    Props: 
+    - fieldId: ID prefix for the date inputs (default: 'date-input') 
+    - label: Label text for the date input group (default: 'Date Input') 
+    - required: Whether the date is required (default: false) 
+    - helpText: Help text displayed below the label (default: '') 
+    - hintText: Hint text for date format (default: 'For example, 27 2 2025') 
+    - cssClass: Additional CSS classes for the form group (default: '') 
 {% endcomment %}
 
 <div class="govuk-form-group {{ cssClass }}" data-field-id="{{ fieldId }}">
@@ -92,3 +92,208 @@
     </div>
   </fieldset>
 </div>
+
+<script>
+  (function() {
+  // Self-contained validation logic for {{ fieldId }}
+  const fieldId = '{{ fieldId }}';
+  const isRequired = {{ required }};
+  const label = '{{ label | escape }}';
+  
+  function validateDate() {
+    const dayField = document.getElementById(`${fieldId}-day`);
+    const monthField = document.getElementById(`${fieldId}-month`);
+    const yearField = document.getElementById(`${fieldId}-year`);
+    
+    if (!dayField || !monthField || !yearField) return { isValid: true };
+    
+    const day = dayField.value.trim();
+    const month = monthField.value.trim();
+    const year = yearField.value.trim();
+    const cleanLabel = label.replace('*', '').trim();
+    
+    // Required validation
+    if (isRequired) {
+      if (!day && !month && !year) {
+        return { isValid: false, error: `Enter ${cleanLabel.toLowerCase()}` };
+      }
+      if (!day || !month || !year) {
+        if (!day) return { isValid: false, error: `${cleanLabel} must include a day` };
+        if (!month) return { isValid: false, error: `${cleanLabel} must include a month` };
+        if (!year) return { isValid: false, error: `${cleanLabel} must include a year` };
+      }
+    }
+    
+    // Skip other validations if all fields are empty and not required
+    if (!day && !month && !year && !isRequired) {
+      return { isValid: true };
+    }
+    
+    // If any field has a value, validate the complete date
+    if (day || month || year) {
+      // Check for missing parts
+      if (!day) return { isValid: false, error: `${cleanLabel} must include a day` };
+      if (!month) return { isValid: false, error: `${cleanLabel} must include a month` };
+      if (!year) return { isValid: false, error: `${cleanLabel} must include a year` };
+      
+      // Validate numeric input
+      const dayNum = parseInt(day, 10);
+      const monthNum = parseInt(month, 10);
+      const yearNum = parseInt(year, 10);
+      
+      if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) {
+        return { isValid: false, error: 'Enter a real day' };
+      }
+      
+      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        return { isValid: false, error: 'Enter a real month' };
+      }
+      
+      if (isNaN(yearNum) || yearNum < 1000 || yearNum > 9999) {
+        return { isValid: false, error: 'Enter a real year' };
+      }
+      
+      // Validate actual date
+      const date = new Date(yearNum, monthNum - 1, dayNum);
+      if (date.getFullYear() !== yearNum || 
+          date.getMonth() !== monthNum - 1 || 
+          date.getDate() !== dayNum) {
+        return { isValid: false, error: 'Enter a real date' };
+      }
+    }
+    
+    return { isValid: true };
+  }
+  
+  function showError(errorMessage) {
+    const fieldset = document.querySelector(`[data-field-id="${fieldId}"] fieldset`);
+    if (!fieldset) return;
+    
+    const formGroup = fieldset.closest('.govuk-form-group');
+    if (!formGroup) return;
+    
+    // Add error class to form group
+    formGroup.classList.add('govuk-form-group--error');
+    
+    // Create or update error message
+    const errorId = `${fieldId}-error`;
+    let errorElement = document.getElementById(errorId);
+    
+    if (!errorElement) {
+      errorElement = document.createElement('p');
+      errorElement.id = errorId;
+      errorElement.className = 'govuk-error-message';
+      errorElement.innerHTML = '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+      
+      // Insert after legend
+      const legend = fieldset.querySelector('legend');
+      if (legend) {
+        legend.insertAdjacentElement('afterend', errorElement);
+      }
+    } else {
+      errorElement.innerHTML = '<span class="govuk-visually-hidden">Error:</span> ' + errorMessage;
+    }
+    
+    // Add error class to all date inputs
+    const dayField = document.getElementById(`${fieldId}-day`);
+    const monthField = document.getElementById(`${fieldId}-month`);
+    const yearField = document.getElementById(`${fieldId}-year`);
+    
+    [dayField, monthField, yearField].forEach(field => {
+      if (field) {
+        field.classList.add('govuk-input--error');
+        
+        // Update aria-describedby
+        const currentDescribedBy = field.getAttribute('aria-describedby') || '';
+        if (!currentDescribedBy.includes(errorId)) {
+          field.setAttribute('aria-describedby', (currentDescribedBy + ' ' + errorId).trim());
+        }
+      }
+    });
+  }
+  
+  function clearError() {
+    const formGroup = document.querySelector(`[data-field-id="${fieldId}"]`);
+    if (formGroup) {
+      formGroup.classList.remove('govuk-form-group--error');
+    }
+    
+    // Remove error message
+    const errorId = `${fieldId}-error`;
+    const errorElement = document.getElementById(errorId);
+    if (errorElement) {
+      errorElement.remove();
+    }
+    
+    // Remove error class from all date inputs
+    const dayField = document.getElementById(`${fieldId}-day`);
+    const monthField = document.getElementById(`${fieldId}-month`);
+    const yearField = document.getElementById(`${fieldId}-year`);
+    
+    [dayField, monthField, yearField].forEach(field => {
+      if (field) {
+        field.classList.remove('govuk-input--error');
+        
+        // Update aria-describedby
+        const currentDescribedBy = field.getAttribute('aria-describedby') || '';
+        const updatedDescribedBy = currentDescribedBy
+          .replace(' ' + errorId, '')
+          .replace(errorId, '')
+          .trim();
+        
+        if (updatedDescribedBy) {
+          field.setAttribute('aria-describedby', updatedDescribedBy);
+        } else {
+          field.removeAttribute('aria-describedby');
+        }
+      }
+    });
+  }
+  
+  // Expose validation methods globally
+  window.GDSDateInput = window.GDSDateInput || {};
+  window.GDSDateInput[fieldId] = {
+    validate: validateDate,
+    showError: showError,
+    clearError: clearError
+  };
+  
+  // Auto-initialize validation when fields are available
+  function initializeValidation() {
+    const dayField = document.getElementById(`${fieldId}-day`);
+    const monthField = document.getElementById(`${fieldId}-month`);
+    const yearField = document.getElementById(`${fieldId}-year`);
+    
+    if (!dayField || !monthField || !yearField) {
+      setTimeout(initializeValidation, 100);
+      return;
+    }
+    
+    // Add blur event for real-time validation on any field
+    [dayField, monthField, yearField].forEach(field => {
+      field.addEventListener('blur', () => {
+        clearError();
+        const validation = validateDate();
+        
+        if (!validation.isValid) {
+          showError(validation.error);
+        }
+      });
+      
+      // Clear errors on input
+      field.addEventListener('input', () => {
+        if (field.classList.contains('govuk-input--error')) {
+          clearError();
+        }
+      });
+    });
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeValidation);
+  } else {
+    initializeValidation();
+  }
+  })();
+</script>
